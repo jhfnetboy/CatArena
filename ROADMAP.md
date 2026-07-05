@@ -48,11 +48,13 @@ CatArena/
 
 ## 里程碑
 
-### M0 · 地基（Foundation）
-- [ ] CatArena Python 包 + venv（path-dep 到 `GOD/agentsociety/packages/agentsociety2`，editable，不改 GOD）
-- [ ] `catarena.run` 启动器：import `catarena.registry` 触发注册后，转交 `agentsociety2.backend.run`
-- [ ] `scripts/catarena.sh`：把后端 workspace 指向 CatArena 树；参与者 jiuwenclaw 运行时独立启动
-- [ ] 复刻 `god_town` 为 `experiments/arena`，验证 CatArena 启动器能跑通原版小镇
+### M0 · 地基（Foundation）— ✅ 接缝已验证
+- [x] CatArena Python 包（`catarena/`）；M0 用 GOD venv + `PYTHONPATH` 运行（M1 再升级为独立 venv / editable path-dep）
+- [x] `catarena/run.py` 启动器：import `catarena.registry` 装 hook 后，同进程（`reload=False`）转交 `agentsociety2.backend.app`
+- [x] `catarena/registry.py`：编程式注册 + **post-scan hook**——GOD 的 `scan_and_register_custom_modules` 会 `clear_custom_modules()`（按类属性 `_is_custom` 判定）再重扫；我们给自定义类打 `_is_custom=True` 并 wrap 该函数在每次 scan 后补注册，重绑所有已导入引用
+- [x] `catarena/verify_seam.py` + `scripts/catarena.sh verify`：真机证明——威胁（裸 scan 清掉我们的模块）+ 修复（装 hook 后 `CatArenaBeaconEnv` 与 GOD 的 `PixelTownSocialEnv`/`JiuwenClawAgent` 共存）
+- [x] `scripts/catarena.sh backend`：CatArena 后端在 :8011 起（GOD engine + hook），`/health` ok，`/api/v1/modules/env_module_classes` 含 `CatArenaBeaconEnv`
+- [ ] （移入 M1）复刻 `god_town` 为 `experiments/arena`，把 `CatArenaBeaconEnv` 列入 `env_modules`，跑通完整小镇（需 jiuwenclaw 运行时 + prime）
 
 ### M1 · Agent 注册加入（Registration & Join）
 - [ ] `participant_agent.py`：`ParticipantAgent(JiuwenClawAgent)`，按参与者绑定 `jiuwenclaw_ws_url`（其本地模型）
